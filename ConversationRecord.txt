@@ -16,3 +16,10 @@
    - 掃碼報到 API 與介面 (含重複報到偵測)
    - 後台統計儀表板與名單搜尋
 3. 產出完整專案檔案與啟動指南 (walkthrough.md)。
+
+--------------------------------------------------------------------------------
+[2026-02-19 22:39:16] System
+- Established local dev environment in C:\temp_dev to bypass Google Drive issues.
+- Fixed backend API errors (500 on check-in) and frontend scanner issues.
+- Successfully pushed code to GitHub: https://github.com/klin1976/EventRegistrationAssistant
+
