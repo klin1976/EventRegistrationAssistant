@@ -23,3 +23,14 @@
 - Fixed backend API errors (500 on check-in) and frontend scanner issues.
 - Successfully pushed code to GitHub: https://github.com/klin1976/EventRegistrationAssistant
 
+
+--------------------------------------------------------------------------------
+[2026-02-19 22:49:18] Update Conversation Record & Push to GitHub
+--------------------------------------------------------------------------------
+1. Environment: Moved project to C:\temp_dev to bypass Google Drive issues.
+2. Bug Fixes:
+   - Fixed CSV BOM encoding issue (Excel "å§“å?" column header).
+   - Optimized Scanner: Used Html5Qrcode + useRef to prevent multiple overlays.
+   - Fixed API 500 error: Added try-catch and resolved duplicate check logic.
+3. Documentation: Created comprehensive README.md.
+4. Deployment/Backup: Successfully pushed stabilized codebase to GitHub.
