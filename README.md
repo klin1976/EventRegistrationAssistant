@@ -1,55 +1,78 @@
-﻿# Event Registration Assistant (瘣餃??勗撠鼠?? ?
+﻿# Event Registration Assistant (瘣餃??勗撠鼠??
 
-銝???CSV ??臬?R Code ?芸?????湔???啗??單?蝯梯??銵冽??Web ?蝔???
+A full-stack web application for managing event registrations, generating QR codes, and handling on-site check-ins. Built with Node.js, Express, SQLite, and React.
 
-## ??銝餉??
+## ?? Features
 
-- **?? ?蝞∠?**嚗??CSV 瑼??寞活銝嚗??mail嚗??芸???撠惇?勗蝣潸? QR Code??
-- **? ?曉?勗**嚗?
-    - ?舀 **Webcam ?? QR Code**嚗???⊿嚗?
-    - ?舀 **??頛詨 6 蝣潔誨蝣?*??
-    - **?脤?銴?唳???*嚗?銴???憿舐內璈霅衣內??甈∪?唳???
-- **?? 蝯梯??銵冽**嚗??蜇鈭箸?歇?勗鈭箸??勗鈭箸?底蝝啣??桃???
-- **???單???**嚗?唳???憭望?/?????Ⅱ閬死????舀???內??
+- **Participant Management**:
+  - Upload CSV file with participant list (Name, Email).
+  - Automatically generate unique Check-in Codes & QR Codes.
+  - Handle duplicate uploads (prevents double entry if logic implemented, currently generates new codes).
 
-## ??儭??銵瑽?
+- **On-Site Check-in**:
+  - **QR Code Scanning**: Use device camera to scan participant QR codes.
+  - **Manual Entry**: Input 6-character check-in code manually.
+  - **Duplicate Prevention**: Detects if a participant has already checked in and shows a warning.
+  - **Visual Feedback**: Green for success, Orange for duplicate, Red for error.
 
-- **Frontend**: React 18, Vite, React Router v6, Html5-Qrcode
-- **Backend**: Node.js, Express
-- **Database**: SQLite (better-sqlite3) - 頛?蝝銝瑼?鞈?摨?
-- **Styles**: Vanilla CSS (RWD 閮剛?)
+- **Admin Dashboard**:
+  - Real-time statistics (Total participants, Checked-in count, Remaining).
+  - Searchable participant list.
+  - View check-in timestamps.
 
-## ?? 敹恍?憪?
+## ??儭?Tech Stack
 
-### 1. 摰?靘陷
-`ash
-npm install
-`
+- **Backend**: Node.js, Express.js
+- **Database**: SQLite (via \etter-sqlite3\)
+- **Frontend**: React, Vite
+- **Styling**: Vanilla CSS (Dark mode optimized)
+- **Utilities**:
+  - \qrcode\: QR code generation
+  - \html5-qrcode\: Browser-based QR scanning
+  - \multer\ & \csv-parser\: File handling
 
-### 2. ??撠? (?璅∪?)
-甇斗?隞斗?????敺垢 API Server (Port 3001) ??蝡?Dev Server (Port 5173)??
-`ash
-npm start
-`
+## ?? Installation & Setup
 
-### 3. ???
-?汗?典?敺嚗http://localhost:5173](http://localhost:5173)
+1. **Clone the repository**
+   \\\ash
+   git clone https://github.com/klin1976/EventRegistrationAssistant.git
+   cd EventRegistrationAssistant
+   \\\
 
-## ?? 撠?蝯?
+2. **Install Dependencies**
+   \\\ash
+   npm install
+   \\\
 
-- \server.js\ - 敺垢?亙??API 頝舐閮剖?
-- \db.js\ - SQLite 鞈?摨恍????Schema 摰儔
-- \outes/\ - Express API 頝舐 (upload, checkin, admin)
-- \client/\ - React ?垢撠?
-  - \src/pages/\ - ?蝯辣 (Upload, Checkin, Dashboard)
+3. **Start the Application**
+   Run backend and frontend concurrently:
+   \\\ash
+   npm start
+   \\\
+   - Backend API: \http://localhost:3001\
+   - Frontend: \http://localhost:5173\
 
-## ?? CSV ?澆?蝭?
-隢???\UTF-8\ 蝺函Ⅳ??CSV 瑼?嚗??思誑銝?雿??舀銝剛??嚗?
-\\\csv
-憪?,email
-????wang@example.com
-?喳之??chen@example.com
+## ?? Project Structure
+
+\\\
+??? client/                 # React Frontend
+??  ??? src/
+??  ??  ??? pages/          # Page components (Upload, Checkin, Dashboard)
+??  ??  ??? App.jsx         # Main routing
+??  ??? vite.config.js      # Vite config (proxy to backend)
+??? routes/                 # Express API Routes
+??  ??? upload.js           # CSV upload & QR generation
+??  ??? checkin.js          # Check-in logic
+??  ??? admin.js            # Dashboard stats
+??? db.js                   # SQLite connection & schema
+??? server.js               # Express server entry point
+??? package.json            # Scripts & dependencies
 \\\
 
----
-Created by Antigravity
+## ?? Usage Guide
+
+1. **Upload**: Go to "銝?", drop a CSV file (Headers: \
+ame\, \email\).
+2. **Check-in**: Go to "?曉?勗", allow camera access, and scan a QR code.
+3. **Dashboard**: Monitor progress in "蝯梯??銵冽".
+
