@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import axios from 'axios';
-import { Upload, AlertTriangle, Mail, CheckCircle, Loader } from 'lucide-react';
+import { Upload, AlertTriangle, MessageSquare, CheckCircle, Loader } from 'lucide-react';
 
 export default function UploadPage() {
     const [file, setFile] = useState(null);
@@ -72,29 +72,21 @@ export default function UploadPage() {
         }
     };
 
-    // Email QR codes to all newly uploaded participants
-    const handleSendEmails = async () => {
+    // Send QR codes to all newly uploaded participants via MS Teams
+    const handleSendTeams = async () => {
         if (participants.length === 0) return;
 
         setEmailStatus('sending');
         try {
-            // First test SMTP connection
-            const testRes = await axios.post('/api/email/test');
-            if (!testRes.data.success) {
-                setEmailStatus({ sent: 0, failed: 0, message: testRes.data.message });
-                return;
-            }
-
-            // Send emails
+            // Send to Teams webhook
             const participantIds = participants.map(p => {
-                // We need to find IDs - send by email list instead
                 return p.checkin_code;
             });
 
-            const response = await axios.post('/api/email/send', {});
+            const response = await axios.post('/api/teams/send', { participantIds });
             setEmailStatus(response.data);
         } catch (err) {
-            const msg = err.response?.data?.message || 'Email 發送失敗';
+            const msg = err.response?.data?.message || 'Teams 通知發送失敗';
             setEmailStatus({ sent: 0, failed: 0, message: msg });
         }
     };
@@ -159,22 +151,26 @@ export default function UploadPage() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem' }}>
                         <h2 style={{ margin: 0 }}>成功新增 {participants.length} 位參加者</h2>
                         <button
-                            className="btn-email"
-                            onClick={handleSendEmails}
+                            className="btn-teams"
+                            onClick={handleSendTeams}
                             disabled={emailStatus === 'sending'}
                             style={{
-                                backgroundColor: emailStatus === 'sending' ? '#555' : '#10b981',
+                                backgroundColor: emailStatus === 'sending' ? '#555' : '#4f46e5', // Teams purple-ish
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '0.5rem',
                                 padding: '0.7rem 1.5rem',
                                 fontSize: '1rem',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '8px',
+                                cursor: emailStatus === 'sending' ? 'not-allowed' : 'pointer'
                             }}
                         >
                             {emailStatus === 'sending' ? (
                                 <><Loader size={18} className="spin-icon" /> 發送中...</>
                             ) : (
-                                <><Mail size={18} /> 寄送 QR Code 到所有人信箱</>
+                                <><MessageSquare size={18} /> 發送 Teams 通知給所有人</>
                             )}
                         </button>
                     </div>

@@ -13,6 +13,7 @@ import uploadRoutes from './routes/upload.js';
 import checkinRoutes from './routes/checkin.js';
 import adminRoutes from './routes/admin.js';
 import emailRoutes from './routes/email.js';
+import teamsRoutes from './routes/teams.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -28,6 +29,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/checkin', checkinRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/email', emailRoutes);
+app.use('/api/teams', teamsRoutes);
 
 // #14: Serve frontend production build
 const clientDist = join(__dirname, 'client', 'dist');
