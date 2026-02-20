@@ -51,7 +51,7 @@ if (!fs.existsSync(uploadDir)) {
 
 // #11: Global error handler middleware
 app.use((err, req, res, next) => {
-    console.error('[Server Error]', err.stack);
+    console.error('[Server Error]', req.method, req.url, err.message);
     res.status(500).json({ error: 'Internal server error' });
 });
 

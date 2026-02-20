@@ -36,12 +36,40 @@ router.post('/send', async (req, res) => {
 
         for (const p of participants) {
             try {
-                // Prepare payload for Power Automate webhook
+                // Prepare payload for Power Automate webhook (Adaptive Card format)
                 const payload = {
-                    name: p.name,
-                    email: p.email,
-                    checkin_code: p.checkin_code,
-                    qr_data: p.qr_data
+                    type: "AdaptiveCard",
+                    $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
+                    version: "1.4",
+                    body: [
+                        {
+                            type: "TextBlock",
+                            text: `活動報到通知：${p.name}`,
+                            weight: "Bolder",
+                            size: "Medium"
+                        },
+                        {
+                            type: "TextBlock",
+                            text: `Email: ${p.email}`,
+                            isSubtle: true,
+                            wrap: true
+                        },
+                        {
+                            type: "FactSet",
+                            facts: [
+                                {
+                                    title: "報到碼",
+                                    value: p.checkin_code
+                                }
+                            ]
+                        },
+                        {
+                            type: "Image",
+                            url: p.qr_data,
+                            size: "Large",
+                            altText: "QR Code"
+                        }
+                    ]
                 };
 
                 const response = await fetch(webhookUrl, {
