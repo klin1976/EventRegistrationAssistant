@@ -28,39 +28,61 @@ router.post('/', upload.single('file'), (req, res) => {
             results.push(cleaned);
         })
         .on('end', async () => {
-            // Clean up file
-            fs.unlinkSync(req.file.path);
+            // Clean up uploaded file
+            try { fs.unlinkSync(req.file.path); } catch (e) { /* ignore */ }
 
             const savedParticipants = [];
+            const skippedParticipants = [];
             const insert = db.prepare('INSERT INTO participants (name, email, checkin_code, qr_data) VALUES (?, ?, ?, ?)');
-
-            const insertMany = db.transaction((participants) => {
-                for (const p of participants) {
-                    insert.run(p.name, p.email, p.checkin_code, p.qr_data);
-                }
-            });
+            const checkEmail = db.prepare('SELECT id, name FROM participants WHERE email = ?');
 
             try {
                 const participantsToInsert = [];
                 for (const row of results) {
-                    // Flexible column names: name/姓名, email/Email
+                    // Flexible column names
                     const name = row.name || row['姓名'] || row['Name'];
                     const email = row.email || row['Email'] || row['信箱'];
 
                     if (name && email) {
-                        const code = uuidv4().substring(0, 6).toUpperCase();
-                        // Generate QR Code as Data URL
-                        const qrData = await QRCode.toDataURL(code);
+                        // #2: Check for duplicate email
+                        const existing = checkEmail.get(email);
+                        if (existing) {
+                            skippedParticipants.push({ name, email, reason: `Email 已存在 (${existing.name})` });
+                            continue;
+                        }
 
+                        // #1: Collision-safe code generation with retry
+                        let code;
+                        let retries = 0;
+                        const checkCode = db.prepare('SELECT id FROM participants WHERE checkin_code = ?');
+                        do {
+                            code = uuidv4().substring(0, 6).toUpperCase();
+                            retries++;
+                        } while (checkCode.get(code) && retries < 10);
+
+                        const qrData = await QRCode.toDataURL(code);
                         participantsToInsert.push({ name, email, checkin_code: code, qr_data: qrData });
                         savedParticipants.push({ name, email, checkin_code: code, qr_data: qrData });
                     }
                 }
 
+                // Batch insert using transaction
+                const insertMany = db.transaction((participants) => {
+                    for (const p of participants) {
+                        insert.run(p.name, p.email, p.checkin_code, p.qr_data);
+                    }
+                });
                 insertMany(participantsToInsert);
-                res.json({ success: true, count: savedParticipants.length, participants: savedParticipants });
+
+                res.json({
+                    success: true,
+                    count: savedParticipants.length,
+                    skipped: skippedParticipants.length,
+                    participants: savedParticipants,
+                    skippedList: skippedParticipants
+                });
             } catch (err) {
-                console.error(err);
+                console.error('[Upload] Error:', err);
                 res.status(500).json({ error: 'Failed to process CSV or insert to database.' });
             }
         });

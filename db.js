@@ -6,8 +6,8 @@ import fs from 'fs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Ensure db directory exists if we put it in a separate folder, or just use root
-const dbPath = join(__dirname, 'registration.db');
+// #13: Allow configurable DB path
+const dbPath = process.env.DB_PATH || join(__dirname, 'registration.db');
 const db = new Database(dbPath);
 
 console.log('Connected to SQLite database at', dbPath);

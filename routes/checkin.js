@@ -20,15 +20,15 @@ router.post('/', (req, res) => {
 
         if (!participant) {
             console.log('[Checkin] Code not found:', cleanCode);
-            return res.status(404).json({ success: false, message: 'Invalid Code' });
+            return res.status(404).json({ success: false, message: '參加者代碼無效 (Invalid Code)' });
         }
 
         if (participant.checked_in === 1) {
-            console.log('[Checkin] Duplicate for:', participant.name);
+            console.log('[Checkin] Duplicate check-in for:', participant.name);
             return res.json({
                 success: true,
                 isDuplicate: true,
-                message: 'Already Checked In',
+                message: '此代碼已報到過 (Already Checked In)',
                 participant: {
                     name: participant.name,
                     email: participant.email,
@@ -37,16 +37,18 @@ router.post('/', (req, res) => {
             });
         }
 
-        const updateStmt = db.prepare("UPDATE participants SET checked_in = 1, checkin_time = datetime('now', 'localtime') WHERE id = ?");
+        // Perform Check-in
+        const updateStmt = db.prepare('UPDATE participants SET checked_in = 1, checkin_time = datetime("now", "localtime") WHERE id = ?');
         updateStmt.run(participant.id);
 
+        // Fetch updated participant
         const updatedParticipant = stmt.get(cleanCode);
         console.log('[Checkin] Success for:', updatedParticipant.name);
 
         res.json({
             success: true,
             isDuplicate: false,
-            message: 'Check-in Successful',
+            message: '報到成功 ✅',
             participant: {
                 name: updatedParticipant.name,
                 email: updatedParticipant.email,
@@ -55,7 +57,7 @@ router.post('/', (req, res) => {
         });
     } catch (err) {
         console.error('[Checkin] Server error:', err);
-        res.status(500).json({ success: false, message: 'Internal Server Error' });
+        res.status(500).json({ success: false, message: '伺服器內部錯誤' });
     }
 });
 

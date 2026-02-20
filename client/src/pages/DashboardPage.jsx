@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Search } from 'lucide-react';
+import { Search, Download } from 'lucide-react';
 
 export default function DashboardPage() {
     const [stats, setStats] = useState({ total: 0, checkedIn: 0, notCheckedIn: 0 });
@@ -10,7 +10,7 @@ export default function DashboardPage() {
 
     useEffect(() => {
         fetchData();
-        const interval = setInterval(fetchData, 5000); // Auto-refresh every 5s
+        const interval = setInterval(fetchData, 5000);
         return () => clearInterval(interval);
     }, []);
 
@@ -34,9 +34,57 @@ export default function DashboardPage() {
         p.checkin_code.includes(search.toUpperCase())
     );
 
+    // #5: Export CSV
+    const exportCSV = () => {
+        const headers = ['姓名', 'Email', '報到碼', '狀態', '報到時間'];
+        const rows = participants.map(p => [
+            p.name,
+            p.email,
+            p.checkin_code,
+            p.checked_in ? '已報到' : '未報到',
+            p.checkin_time || ''
+        ]);
+
+        // Add BOM for Excel compatibility
+        const bom = '\uFEFF';
+        const csvContent = bom + [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `checkin-report-${new Date().toISOString().split('T')[0]}.csv`;
+        link.click();
+        URL.revokeObjectURL(url);
+    };
+
+    // #6: Progress ring calculation
+    const percentage = stats.total > 0 ? Math.round((stats.checkedIn / stats.total) * 100) : 0;
+    const radius = 65;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (percentage / 100) * circumference;
+
     return (
         <div className="page-container">
             <h1>後台統計儀表板 (Dashboard)</h1>
+
+            {/* #6: Progress Ring */}
+            <div className="progress-ring-container">
+                <div className="progress-ring-wrapper">
+                    <svg width="100%" height="100%" viewBox="0 0 160 160">
+                        <circle className="progress-ring-bg" cx="80" cy="80" r={radius} />
+                        <circle
+                            className="progress-ring-fill"
+                            cx="80" cy="80" r={radius}
+                            strokeDasharray={circumference}
+                            strokeDashoffset={offset}
+                        />
+                    </svg>
+                    <div className="progress-ring-text">
+                        <div className="percentage">{percentage}%</div>
+                        <div className="label">報到率</div>
+                    </div>
+                </div>
+            </div>
 
             {/* Stats Cards */}
             <div className="stats-grid">
@@ -56,22 +104,33 @@ export default function DashboardPage() {
 
             {/* Participant List */}
             <div className="card">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                    <h2>參加者名單</h2>
-                    <div style={{ position: 'relative', width: '300px' }}>
-                        <Search size={18} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#888' }} />
-                        <input
-                            type="text"
-                            placeholder="搜尋姓名、Email..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            style={{ width: '100%', paddingLeft: '35px' }}
-                        />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+                    <h2 style={{ margin: 0 }}>參加者名單</h2>
+                    <div className="dashboard-actions">
+                        {/* #5: Export button */}
+                        <button className="btn-export" onClick={exportCSV} disabled={participants.length === 0}>
+                            <Download size={16} style={{ marginRight: '0.3rem', verticalAlign: 'middle' }} />
+                            匯出 CSV
+                        </button>
+                        <div style={{ position: 'relative', minWidth: '200px' }}>
+                            <Search size={18} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#888' }} />
+                            <input
+                                type="text"
+                                placeholder="搜尋姓名、Email..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                style={{ width: '100%', paddingLeft: '35px', boxSizing: 'border-box' }}
+                            />
+                        </div>
                     </div>
                 </div>
 
                 {loading ? (
-                    <p>載入中...</p>
+                    <div className="skeleton-container">
+                        {[...Array(5)].map((_, i) => (
+                            <div key={i} className="skeleton-row" style={{ height: '3rem', backgroundColor: '#3a3a3a', borderRadius: '6px', marginBottom: '0.5rem', animation: 'pulse 1.5s infinite' }}></div>
+                        ))}
+                    </div>
                 ) : (
                     <div style={{ overflowX: 'auto' }}>
                         <table>
