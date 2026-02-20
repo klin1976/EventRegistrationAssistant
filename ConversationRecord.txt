@@ -2,43 +2,28 @@
 活動報到小幫手
 ================================================================================
 --------------------------------------------------------------------------------
-[2026-02-18T23:45:00+08:00] 用戶提問 / AI 回應
+[2026-02-18] 專案初始化與核心功能實作
 --------------------------------------------------------------------------------
-專案初始化完成。
+1. 確立架構：Node.js + Express + SQLite (Backend) / React + Vite (Frontend)。
+2. 完成核心功能：CSV 上傳、UUID/QR Code 生成、掃碼報到、後台統計儀表板。
 --------------------------------------------------------------------------------
-[2026-02-18T23:50:00+08:00] 用戶提問 / AI 回應
+[2026-02-19] 環境穩定化與基礎文件
 --------------------------------------------------------------------------------
-更新對話紀錄：
-協助用戶規劃並實作「活動報到小幫手」Monolith Web App。
-1. 確立架構：Node.js + Express + SQLite (Backend) / React + Vite (Frontend)
-2. 完成核心功能：
-   - CSV 名單上傳與 UUID/QR Code 自動生成
-   - 掃碼報到 API 與介面 (含重複報到偵測)
-   - 後台統計儀表板與名單搜尋
-3. 產出完整專案檔案與啟動指南 (walkthrough.md)。
-
+1. 解決環境問題：將專案從 Google Drive (I:) 移至本地 C:\temp_dev 開發，解決 npm 失敗問題。
+2. 產出 README.md：包含功能說明、技術棧與安裝指南。
+3. 修復漏洞：修正 CSV BOM 編碼問題、優化掃描器多重視窗問題、修復 API 500 錯誤。
 --------------------------------------------------------------------------------
-[2026-02-19 22:39:16] System
-- Established local dev environment in C:\temp_dev to bypass Google Drive issues.
-- Fixed backend API errors (500 on check-in) and frontend scanner issues.
-- Successfully pushed code to GitHub: https://github.com/klin1976/EventRegistrationAssistant
-
-
+[2026-02-20] 功能升級 (v2.0)：Email 功能、HTTPS 與行動端優化
 --------------------------------------------------------------------------------
-[2026-02-19 22:49:18] Update Conversation Record & Push to GitHub
+1. 實作 Email 寄送：新增 Nodemailer 整合，支援自動寄送報到 QR Code 到參加者信箱。
+2. 優化行動裝置連線：
+   - 調整 Vite 設定 (host: 0.0.0.0) 允許手機連入。
+   - 整合 @vitejs/plugin-basic-ssl 實作 HTTPS，解決瀏覽器相機權限限制。
+3. 介面與功能強化：
+   - 增加 CSV 匯出、SVG 進度環形圖、拖放上傳、載入骨架 (Skeleton)。
+   - 實作手機版 RWD（漢堡選單、表格卡片化）。
+4. 新增 GUIDE.md：產出完整電腦/手機操作流程指南。
 --------------------------------------------------------------------------------
-1. Environment: Moved project to C:\temp_dev to bypass Google Drive issues.
-2. Bug Fixes:
-   - Fixed CSV BOM encoding issue (Excel "姓�?" column header).
-   - Optimized Scanner: Used Html5Qrcode + useRef to prevent multiple overlays.
-   - Fixed API 500 error: Added try-catch and resolved duplicate check logic.
-3. Documentation: Created comprehensive README.md.
-4. Deployment/Backup: Successfully pushed stabilized codebase to GitHub.
-
+[2026-02-20] 備份與同步
 --------------------------------------------------------------------------------
-[2026-02-20 18:29:05] Update Record & Guide, Push to GitHub
---------------------------------------------------------------------------------
-1. Created GUIDE.md: Complete operation guide for PC and Mobile.
-2. Implemented Email: Added QR code sending functionality via Nodemailer.
-3. Mobile Support: Added Vite HTTPS/SSL support and 0.0.0.0 host config for camera access.
-4. Record Updated: Pushed all functional updates and documentation to GitHub.
+所有功能開發完成，代碼、對話紀錄與操作指南已同步推送到 GitHub 儲存庫。
