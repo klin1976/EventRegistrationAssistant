@@ -1,78 +1,47 @@
-﻿# Event Registration Assistant (瘣餃??勗撠鼠??
+# 活動報到小幫手 (Event Registration Assistant)
 
-A full-stack web application for managing event registrations, generating QR codes, and handling on-site check-ins. Built with Node.js, Express, SQLite, and React.
+一個功能完整的全端 Web 應用程式，專為活動報到設計，支援 QR Code 自動生成、Email 發送以及現場掃碼報到。
 
-## ?? Features
+## 🌟 核心功能
 
-- **Participant Management**:
-  - Upload CSV file with participant list (Name, Email).
-  - Automatically generate unique Check-in Codes & QR Codes.
-  - Handle duplicate uploads (prevents double entry if logic implemented, currently generates new codes).
+*   **參加者管理**：
+    *   透過 CSV 檔案批次上傳參加者名單（姓名、Email）。
+    *   自動為每位參加者生成唯一的「報到碼」與「QR Code」。
+    *   **Email 發送**：一鍵將包含報到資訊的 QR Code 寄送至參加者信箱（支援 HTML 精美排版）。
+    *   重複防護：自動檢查並跳過重複的 Email 上傳。
 
-- **On-Site Check-in**:
-  - **QR Code Scanning**: Use device camera to scan participant QR codes.
-  - **Manual Entry**: Input 6-character check-in code manually.
-  - **Duplicate Prevention**: Detects if a participant has already checked in and shows a warning.
-  - **Visual Feedback**: Green for success, Orange for duplicate, Red for error.
+*   **現場報到系統 (Check-in)**：
+    *   **QR Code 掃描**：支援手機相機、平板即時掃描（已優化 HTTPS 相機授權）。
+    *   **手動輸入**：可手動輸入 6 碼代碼進行報到。
+    *   **即時反饋**：報到成功、重複報到或無效代碼皆有不同的音效與視覺提示。
+    *   **行動優先 (RWD)**：專為手機操作設計的介面，支援橫向與縱向瀏覽。
 
-- **Admin Dashboard**:
-  - Real-time statistics (Total participants, Checked-in count, Remaining).
-  - Searchable participant list.
-  - View check-in timestamps.
+*   **統計儀表板 (Dashboard)**：
+    *   實時顯示統計數據（總人數、已報到、未報到）。
+    *   **環形進度圖**：直觀顯示目前的報到率百分比。
+    *   支援快速搜尋與過濾參加者名單。
+    *   **數據匯出**：可將報到結果匯出為 CSV 檔（已解決 Excel 亂碼問題）。
 
-## ??儭?Tech Stack
+## 🛠️ 技術棧
 
-- **Backend**: Node.js, Express.js
-- **Database**: SQLite (via \etter-sqlite3\)
-- **Frontend**: React, Vite
-- **Styling**: Vanilla CSS (Dark mode optimized)
-- **Utilities**:
-  - \qrcode\: QR code generation
-  - \html5-qrcode\: Browser-based QR scanning
-  - \multer\ & \csv-parser\: File handling
+*   **前端**：React, Vite, Lucide React (圖標), HTML5-QRCode (掃描)。
+*   **後端**：Node.js, Express.js。
+*   **資料庫**：SQLite (使用 `better-sqlite3`)。
+*   **其他**：Nodemailer (Email), Web Audio API (音效), CSS3 (RWD 響應式佈局)。
 
-## ?? Installation & Setup
+## 🚀 快速開始
 
-1. **Clone the repository**
-   \\\ash
-   git clone https://github.com/klin1976/EventRegistrationAssistant.git
-   cd EventRegistrationAssistant
-   \\\
+請參考專案中的 **[GUIDE.md](./GUIDE.md)** 以獲得詳細的操作流程與各平台（電腦、手機）的設定指南。
 
-2. **Install Dependencies**
-   \\\ash
-   npm install
-   \\\
+## 📦 安裝與運行
 
-3. **Start the Application**
-   Run backend and frontend concurrently:
-   \\\ash
-   npm start
-   \\\
-   - Backend API: \http://localhost:3001\
-   - Frontend: \http://localhost:5173\
+```bash
+# 1. 安裝套件
+npm install
 
-## ?? Project Structure
+# 2. 設定環境變數
+# 請參考 .env 並填入您的 SMTP 資訊
 
-\\\
-??? client/                 # React Frontend
-??  ??? src/
-??  ??  ??? pages/          # Page components (Upload, Checkin, Dashboard)
-??  ??  ??? App.jsx         # Main routing
-??  ??? vite.config.js      # Vite config (proxy to backend)
-??? routes/                 # Express API Routes
-??  ??? upload.js           # CSV upload & QR generation
-??  ??? checkin.js          # Check-in logic
-??  ??? admin.js            # Dashboard stats
-??? db.js                   # SQLite connection & schema
-??? server.js               # Express server entry point
-??? package.json            # Scripts & dependencies
-\\\
-
-## ?? Usage Guide
-
-1. **Upload**: Go to "銝?", drop a CSV file (Headers: \
-ame\, \email\).
-2. **Check-in**: Go to "?曉?勗", allow camera access, and scan a QR code.
-3. **Dashboard**: Monitor progress in "蝯梯??銵冽".
-
+# 3. 啟動開發伺服器
+npm start
+```
