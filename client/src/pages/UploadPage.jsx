@@ -72,18 +72,27 @@ export default function UploadPage() {
         }
     };
 
-    // Send QR codes to all newly uploaded participants via MS Teams
-    const handleSendTeams = async () => {
-        if (participants.length === 0) return;
+    // Send QR codes via MS Teams
+    const handleSendTeams = async (useSkipped = false) => {
+        const sourceList = useSkipped ? skipped : participants;
+        if (sourceList.length === 0) return;
 
         setEmailStatus('sending');
         try {
             // Send to Teams webhook
-            const participantIds = participants.map(p => {
+            const participantIds = sourceList.map(p => {
+                // If skipped, we still have their email, we can fetch checkin_code
                 return p.checkin_code;
             });
 
-            const response = await axios.post('/api/teams/send', { participantIds });
+            // Note: Currently skipped items from backend might lack checkin_code 
+            // if we only return name/email/reason.
+            // Let's send an empty array to tell backend to send to EVERYONE in DB 
+            // if we are trying to send skipped ones, OR we can just hit /api/teams/send 
+            // with no body to send to all.
+            const payload = useSkipped ? {} : { participantIds };
+
+            const response = await axios.post('/api/teams/send', payload);
             setEmailStatus(response.data);
         } catch (err) {
             const msg = err.response?.data?.message || 'Teams 通知發送失敗';
@@ -130,14 +139,39 @@ export default function UploadPage() {
                 {error && <p style={{ color: '#ef4444', marginTop: '1rem', textAlign: 'center' }}>{error}</p>}
             </div>
 
-            {/* Skipped duplicates warning */}
+            {/* Skipped duplicates warning & Actions */}
             {skipped.length > 0 && (
                 <div className="card" style={{ borderLeft: '4px solid var(--warning-color)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-                        <AlertTriangle size={20} style={{ color: 'var(--warning-color)' }} />
-                        <h3 style={{ margin: 0, color: 'var(--warning-color)' }}>已跳過 {skipped.length} 筆重複資料</h3>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <AlertTriangle size={20} style={{ color: 'var(--warning-color)' }} />
+                            <h3 style={{ margin: 0, color: 'var(--warning-color)' }}>已跳過 {skipped.length} 筆重複資料</h3>
+                        </div>
+                        <button
+                            className="btn-teams"
+                            onClick={() => handleSendTeams(true)}
+                            disabled={emailStatus === 'sending'}
+                            style={{
+                                backgroundColor: emailStatus === 'sending' ? '#555' : '#4f46e5',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                padding: '0.5rem 1rem',
+                                fontSize: '0.9rem',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '8px',
+                                cursor: emailStatus === 'sending' ? 'not-allowed' : 'pointer'
+                            }}
+                        >
+                            {emailStatus === 'sending' ? (
+                                <><Loader size={16} className="spin-icon" /> 發送中...</>
+                            ) : (
+                                <><MessageSquare size={16} /> 發送 Teams 通知給「資料庫所有人」</>
+                            )}
+                        </button>
                     </div>
-                    <ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#aaa' }}>
+                    <ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#aaa', marginBottom: '1rem' }}>
                         {skipped.map((s, i) => (
                             <li key={i}>{s.name} ({s.email}) — {s.reason}</li>
                         ))}
