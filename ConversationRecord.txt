@@ -30,3 +30,16 @@
 2. 實作 `routes/teams.js`，將包含 QR Code 的參加者資料打包成 JSON，發送至 Power Automate Webhook URL。
 3. 更新前端介面與 `GUIDE.md` 說明文件。
 4. 全新代碼已推送到 GitHub 儲存庫。
+--------------------------------------------------------------------------------
+[2026-02-20] 通知系統除錯與 Power Automate 整合完畢
+--------------------------------------------------------------------------------
+1. 修復 Teams Webhook Payload 格式：
+   - 解決 `AdaptiveCards.AdaptiveSerializationException: Property 'type' must be 'AdaptiveCard'` 錯誤。
+   - 配合 Microsoft Power Automate 的「Incoming Webhook Replacement」範本，將 payload 調整為純粹的 Adaptive Card 結構。
+2. 系統穩定性修復：
+   - 徹底解決 Node.js 行程殘留導致的 `EADDRINUSE (Port 3001)` 衝突問題。
+   - 修復因 JSON 格式解析失敗（curl 脫逸字元問題）造成的 Check-in API 指向虛假 500 錯誤。
+3. 自動化與同步：
+   - 完成本地 `C:\temp_dev` 與雲端硬碟 `I:\` 的代碼雙向同步。
+   - 所有修復代碼（包含 server.js 內的錯誤處理與 teams.js 的 payload 包裝）已全數推送至 GitHub。
+--------------------------------------------------------------------------------
