@@ -29,6 +29,7 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
+    "@vitejs/plugin-basic-ssl": "^2.1.4",
     "@vitejs/plugin-react": "^4.2.1",
     "vite": "^5.0.12"
   }

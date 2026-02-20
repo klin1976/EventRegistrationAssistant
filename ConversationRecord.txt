@@ -34,3 +34,11 @@
    - Fixed API 500 error: Added try-catch and resolved duplicate check logic.
 3. Documentation: Created comprehensive README.md.
 4. Deployment/Backup: Successfully pushed stabilized codebase to GitHub.
+
+--------------------------------------------------------------------------------
+[2026-02-20 18:29:05] Update Record & Guide, Push to GitHub
+--------------------------------------------------------------------------------
+1. Created GUIDE.md: Complete operation guide for PC and Mobile.
+2. Implemented Email: Added QR code sending functionality via Nodemailer.
+3. Mobile Support: Added Vite HTTPS/SSL support and 0.0.0.0 host config for camera access.
+4. Record Updated: Pushed all functional updates and documentation to GitHub.
