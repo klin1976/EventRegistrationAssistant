@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import axios from 'axios';
-import { Upload, AlertTriangle } from 'lucide-react';
+import { Upload, AlertTriangle, Mail, CheckCircle, Loader } from 'lucide-react';
 
 export default function UploadPage() {
     const [file, setFile] = useState(null);
@@ -9,6 +9,7 @@ export default function UploadPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [dragActive, setDragActive] = useState(false);
+    const [emailStatus, setEmailStatus] = useState(null); // null | 'sending' | {sent, failed, message}
     const fileInputRef = useRef(null);
 
     const handleFileChange = (e) => {
@@ -16,7 +17,6 @@ export default function UploadPage() {
         setError('');
     };
 
-    // #7: Drag & Drop handlers
     const handleDrag = (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -53,6 +53,7 @@ export default function UploadPage() {
 
         setLoading(true);
         setSkipped([]);
+        setEmailStatus(null);
         try {
             const response = await axios.post('/api/upload', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
@@ -68,6 +69,33 @@ export default function UploadPage() {
             setError('上傳失敗，請確認檔案格式正確');
         } finally {
             setLoading(false);
+        }
+    };
+
+    // Email QR codes to all newly uploaded participants
+    const handleSendEmails = async () => {
+        if (participants.length === 0) return;
+
+        setEmailStatus('sending');
+        try {
+            // First test SMTP connection
+            const testRes = await axios.post('/api/email/test');
+            if (!testRes.data.success) {
+                setEmailStatus({ sent: 0, failed: 0, message: testRes.data.message });
+                return;
+            }
+
+            // Send emails
+            const participantIds = participants.map(p => {
+                // We need to find IDs - send by email list instead
+                return p.checkin_code;
+            });
+
+            const response = await axios.post('/api/email/send', {});
+            setEmailStatus(response.data);
+        } catch (err) {
+            const msg = err.response?.data?.message || 'Email 發送失敗';
+            setEmailStatus({ sent: 0, failed: 0, message: msg });
         }
     };
 
@@ -110,7 +138,7 @@ export default function UploadPage() {
                 {error && <p style={{ color: '#ef4444', marginTop: '1rem', textAlign: 'center' }}>{error}</p>}
             </div>
 
-            {/* #2: Skipped duplicates warning */}
+            {/* Skipped duplicates warning */}
             {skipped.length > 0 && (
                 <div className="card" style={{ borderLeft: '4px solid var(--warning-color)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
@@ -125,9 +153,56 @@ export default function UploadPage() {
                 </div>
             )}
 
+            {/* Upload results + Email button */}
             {participants.length > 0 && (
                 <div>
-                    <h2>成功新增 {participants.length} 位參加者</h2>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem' }}>
+                        <h2 style={{ margin: 0 }}>成功新增 {participants.length} 位參加者</h2>
+                        <button
+                            className="btn-email"
+                            onClick={handleSendEmails}
+                            disabled={emailStatus === 'sending'}
+                            style={{
+                                backgroundColor: emailStatus === 'sending' ? '#555' : '#10b981',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                padding: '0.7rem 1.5rem',
+                                fontSize: '1rem',
+                            }}
+                        >
+                            {emailStatus === 'sending' ? (
+                                <><Loader size={18} className="spin-icon" /> 發送中...</>
+                            ) : (
+                                <><Mail size={18} /> 寄送 QR Code 到所有人信箱</>
+                            )}
+                        </button>
+                    </div>
+
+                    {/* Email status result */}
+                    {emailStatus && emailStatus !== 'sending' && (
+                        <div className="card" style={{
+                            borderLeft: `4px solid ${emailStatus.failed > 0 ? 'var(--warning-color)' : 'var(--success-color)'}`,
+                            marginBottom: '1rem'
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                {emailStatus.sent > 0 ? (
+                                    <CheckCircle size={20} style={{ color: 'var(--success-color)' }} />
+                                ) : (
+                                    <AlertTriangle size={20} style={{ color: 'var(--warning-color)' }} />
+                                )}
+                                <span>{emailStatus.message}</span>
+                            </div>
+                            {emailStatus.errors && emailStatus.errors.length > 0 && (
+                                <ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem', color: '#aaa', fontSize: '0.9rem' }}>
+                                    {emailStatus.errors.map((e, i) => (
+                                        <li key={i}>{e.name} ({e.email}): {e.error}</li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+                    )}
+
                     <div className="participant-list">
                         {participants.map((p) => (
                             <div key={p.checkin_code} className="participant-card">

@@ -12,6 +12,7 @@ dotenv.config();
 import uploadRoutes from './routes/upload.js';
 import checkinRoutes from './routes/checkin.js';
 import adminRoutes from './routes/admin.js';
+import emailRoutes from './routes/email.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -26,6 +27,7 @@ app.use(express.json());
 app.use('/api/upload', uploadRoutes);
 app.use('/api/checkin', checkinRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/email', emailRoutes);
 
 // #14: Serve frontend production build
 const clientDist = join(__dirname, 'client', 'dist');
